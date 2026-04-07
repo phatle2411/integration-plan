@@ -2663,7 +2663,7 @@ Admin configures field mapping and sync schedule
 Saves ConnectorConfig (API Key encrypted with AES-256)
         ↓
 SmartR displays the Webhook URL for the admin to paste into Jira:
-  https://app.smartr.co/webhooks/jira/{orgSlug}</pre
+  https://nest.smartrlms.com/api/v1/webhooks/jira/{orgSlug}</pre
             >
             <figure
               class="viz viz-screenshot"
@@ -2822,15 +2822,17 @@ Worker processes asynchronously → Sync Engine</pre
               />
               <figcaption class="viz-caption">
                 Example (Jira): create a webhook listener — paste SmartR’s
-                <code>https://app.smartr.co/webhooks/jira/{orgSlug}</code> as
-                the URL and align the secret with the value stored in SmartR for
-                HMAC verification.
+                <code
+                  >https://nest.smartrlms.com/api/v1/webhooks/jira/{orgSlug}</code
+                >
+                as the URL and align the secret with the value stored in SmartR
+                for HMAC verification.
               </figcaption>
             </figure>
           </div>
         </section>
 
-        <section class="slide" data-title="2.5 Poll">
+        <section id="polling" class="slide" data-title="2.5 Poll">
           <div class="slide-inner">
             <h2 class="doc-h2">Part 2 — Integration Marketplace</h2>
             <h3 class="doc-h3">2.5 — Polling (BambooHR and Fallback)</h3>
@@ -2838,55 +2840,270 @@ Worker processes asynchronously → Sync Engine</pre
               For services that do not support sending webhooks (or when
               webhooks fail):
             </p>
-            <figure class="viz" aria-label="Polling cycle">
+            <figure class="viz viz--tall" aria-label="Polling flow">
               <svg
-                viewBox="0 0 320 120"
+                viewBox="0 0 400 268"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 aria-hidden="true"
               >
-                <circle
-                  cx="160"
-                  cy="58"
-                  r="44"
+                <defs>
+                  <marker
+                    id="pollArrow"
+                    markerWidth="8"
+                    markerHeight="8"
+                    refX="6"
+                    refY="4"
+                    orient="auto"
+                  >
+                    <path d="M0 0 L8 4 L0 8 Z" fill="#94a3b8" />
+                  </marker>
+                </defs>
+                <!-- Step 1: scheduler -->
+                <rect
+                  x="60"
+                  y="4"
+                  width="280"
+                  height="36"
+                  rx="8"
                   stroke="#e8a838"
-                  stroke-width="2"
-                  fill="none"
-                  stroke-dasharray="8 6"
+                  stroke-width="1.5"
+                  fill="rgba(232,168,56,0.12)"
                 />
                 <text
-                  x="160"
-                  y="52"
+                  x="200"
+                  y="19"
                   text-anchor="middle"
-                  fill="#e8a838"
+                  fill="#0f172a"
                   font-size="10"
+                  font-weight="600"
                   font-family="JetBrains Mono,monospace"
                 >
-                  cron
+                  1 · BullMQ repeatable job
                 </text>
                 <text
-                  x="160"
-                  y="66"
+                  x="200"
+                  y="32"
                   text-anchor="middle"
                   fill="#64748b"
                   font-size="8"
                   font-family="JetBrains Mono,monospace"
                 >
-                  repeatable job
+                  fires on cron schedule
                 </text>
-                <circle cx="160" cy="58" r="8" fill="#0d9488" />
+                <line
+                  x1="200"
+                  y1="42"
+                  x2="200"
+                  y2="52"
+                  stroke="#94a3b8"
+                  stroke-width="2"
+                  marker-end="url(#pollArrow)"
+                />
+                <!-- Step 2: outbound API -->
+                <rect
+                  x="40"
+                  y="54"
+                  width="118"
+                  height="40"
+                  rx="6"
+                  stroke="#0d9488"
+                  stroke-width="1.5"
+                  fill="rgba(13,148,136,0.08)"
+                />
                 <text
-                  x="160"
-                  y="108"
+                  x="99"
+                  y="72"
                   text-anchor="middle"
-                  fill="#64748b"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-weight="600"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  2 · Connector
+                </text>
+                <text
+                  x="99"
+                  y="86"
+                  text-anchor="middle"
+                  fill="#0d9488"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  SmartR module
+                </text>
+                <path
+                  d="M162 74h36"
+                  stroke="#e8a838"
+                  stroke-width="2"
+                  marker-end="url(#pollArrow)"
+                />
+                <text
+                  x="180"
+                  y="68"
+                  text-anchor="middle"
+                  fill="#94a3b8"
+                  font-size="7"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  GET
+                </text>
+                <rect
+                  x="202"
+                  y="54"
+                  width="158"
+                  height="40"
+                  rx="6"
+                  stroke="#818cf8"
+                  stroke-width="1.5"
+                  fill="rgba(129,140,248,0.1)"
+                />
+                <text
+                  x="281"
+                  y="72"
+                  text-anchor="middle"
+                  fill="#0f172a"
                   font-size="9"
                   font-family="Newsreader,serif"
                 >
-                  BambooHR · lastSyncAt watermark
+                  BambooHR API
+                </text>
+                <text
+                  x="281"
+                  y="86"
+                  text-anchor="middle"
+                  fill="#64748b"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  org API key
+                </text>
+                <line
+                  x1="200"
+                  y1="98"
+                  x2="200"
+                  y2="108"
+                  stroke="#94a3b8"
+                  stroke-width="2"
+                  marker-end="url(#pollArrow)"
+                />
+                <!-- Step 3: watermark -->
+                <rect
+                  x="60"
+                  y="110"
+                  width="280"
+                  height="40"
+                  rx="8"
+                  stroke="#94a3b8"
+                  stroke-width="1.5"
+                  fill="rgba(15,23,42,0.04)"
+                />
+                <text
+                  x="200"
+                  y="127"
+                  text-anchor="middle"
+                  fill="#0f172a"
+                  font-size="10"
+                  font-weight="600"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  3 · Incremental fetch
+                </text>
+                <text
+                  x="200"
+                  y="142"
+                  text-anchor="middle"
+                  fill="#64748b"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  only data changed since lastSyncAt (watermark)
+                </text>
+                <line
+                  x1="200"
+                  y1="154"
+                  x2="200"
+                  y2="164"
+                  stroke="#94a3b8"
+                  stroke-width="2"
+                  marker-end="url(#pollArrow)"
+                />
+                <!-- Step 4: sync engine -->
+                <rect
+                  x="60"
+                  y="166"
+                  width="280"
+                  height="34"
+                  rx="8"
+                  stroke="#0d9488"
+                  stroke-width="2"
+                  fill="rgba(94,234,212,0.1)"
+                />
+                <text
+                  x="200"
+                  y="187"
+                  text-anchor="middle"
+                  fill="#0f172a"
+                  font-size="10"
+                  font-weight="600"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  4 · Sync Engine
+                </text>
+                <line
+                  x1="200"
+                  y1="202"
+                  x2="200"
+                  y2="212"
+                  stroke="#94a3b8"
+                  stroke-width="2"
+                  marker-end="url(#pollArrow)"
+                />
+                <!-- Step 5: persist watermark -->
+                <rect
+                  x="60"
+                  y="214"
+                  width="280"
+                  height="32"
+                  rx="8"
+                  stroke="#b45309"
+                  stroke-width="1.5"
+                  fill="rgba(180,83,9,0.08)"
+                />
+                <text
+                  x="200"
+                  y="234"
+                  text-anchor="middle"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-weight="600"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  5 · Save lastSyncAt
+                </text>
+                <!-- Loop back -->
+                <path
+                  d="M348 230 C 392 230 392 24 348 24"
+                  stroke="#cbd5e1"
+                  stroke-width="1.5"
+                  stroke-dasharray="5 4"
+                  fill="none"
+                />
+                <polygon points="348,22 356,26 348,30" fill="#cbd5e1" />
+                <text
+                  x="358"
+                  y="124"
+                  fill="#94a3b8"
+                  font-size="7"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  next cron
                 </text>
               </svg>
-              <figcaption class="viz-caption">Scheduled poll loop</figcaption>
+              <figcaption class="viz-caption">
+                Pull path: schedule → outbound API → watermark filter → sync →
+                persist state (loop)
+              </figcaption>
             </figure>
             <pre class="doc-pre">
 BullMQ repeatable job runs on cron schedule
@@ -3102,6 +3319,240 @@ Update lastSyncAt</pre
 7. Prisma upsert → persist to database
 8. Write SyncLog</pre
             >
+            <p class="doc-p">
+              <strong>Field Mapper — example</strong> (configured JSON per
+              connector): external employee fields map onto SmartR tables and
+              columns. <code>job_title</code> can target a related entity
+              (<code>organization_positions</code>), not only the member row.
+            </p>
+            <figure
+              class="viz viz--tall"
+              aria-label="Example mapping from BambooHR employees to SmartR organization_members and organization_positions"
+            >
+              <svg
+                viewBox="0 0 640 124"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <defs>
+                  <marker
+                    id="mapArrowEnd"
+                    markerWidth="7"
+                    markerHeight="7"
+                    refX="6"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <path d="M0 0 L7 3.5 L0 7 Z" fill="#94a3b8" />
+                  </marker>
+                </defs>
+                <text
+                  x="12"
+                  y="14"
+                  fill="#64748b"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                  letter-spacing="0.06em"
+                >
+                  EXTERNAL · EMPLOYEES
+                </text>
+                <text
+                  x="628"
+                  y="14"
+                  text-anchor="end"
+                  fill="#64748b"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                  letter-spacing="0.06em"
+                >
+                  SMARTR DOMAIN
+                </text>
+                <rect
+                  x="8"
+                  y="22"
+                  width="248"
+                  height="26"
+                  rx="6"
+                  stroke="#818cf8"
+                  stroke-width="1.25"
+                  fill="rgba(129,140,248,0.08)"
+                />
+                <text
+                  x="20"
+                  y="40"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  employees.full_name
+                </text>
+                <line
+                  x1="260"
+                  y1="35"
+                  x2="288"
+                  y2="35"
+                  stroke="#94a3b8"
+                  stroke-width="1.75"
+                  marker-end="url(#mapArrowEnd)"
+                />
+                <text
+                  x="300"
+                  y="38"
+                  fill="#0d9488"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  Field Mapper
+                </text>
+                <line
+                  x1="382"
+                  y1="35"
+                  x2="410"
+                  y2="35"
+                  stroke="#94a3b8"
+                  stroke-width="1.75"
+                  marker-end="url(#mapArrowEnd)"
+                />
+                <rect
+                  x="414"
+                  y="22"
+                  width="218"
+                  height="26"
+                  rx="6"
+                  stroke="#0d9488"
+                  stroke-width="1.25"
+                  fill="rgba(13,148,136,0.07)"
+                />
+                <text
+                  x="426"
+                  y="40"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  organization_members.full_name
+                </text>
+                <rect
+                  x="8"
+                  y="54"
+                  width="248"
+                  height="26"
+                  rx="6"
+                  stroke="#818cf8"
+                  stroke-width="1.25"
+                  fill="rgba(129,140,248,0.08)"
+                />
+                <text
+                  x="20"
+                  y="72"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  employees.email
+                </text>
+                <line
+                  x1="260"
+                  y1="67"
+                  x2="410"
+                  y2="67"
+                  stroke="#94a3b8"
+                  stroke-width="1.75"
+                  marker-end="url(#mapArrowEnd)"
+                />
+                <rect
+                  x="414"
+                  y="54"
+                  width="218"
+                  height="26"
+                  rx="6"
+                  stroke="#0d9488"
+                  stroke-width="1.25"
+                  fill="rgba(13,148,136,0.07)"
+                />
+                <text
+                  x="426"
+                  y="72"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  organization_members.email
+                </text>
+                <rect
+                  x="8"
+                  y="86"
+                  width="248"
+                  height="28"
+                  rx="6"
+                  stroke="#818cf8"
+                  stroke-width="1.25"
+                  fill="rgba(129,140,248,0.08)"
+                />
+                <text
+                  x="20"
+                  y="104"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  employees.job_title
+                </text>
+                <line
+                  x1="260"
+                  y1="100"
+                  x2="288"
+                  y2="100"
+                  stroke="#e8a838"
+                  stroke-width="1.75"
+                  marker-end="url(#mapArrowEnd)"
+                />
+                <text
+                  x="300"
+                  y="103"
+                  fill="#b45309"
+                  font-size="8"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  resolve / link
+                </text>
+                <line
+                  x1="382"
+                  y1="100"
+                  x2="410"
+                  y2="100"
+                  stroke="#e8a838"
+                  stroke-width="1.75"
+                  marker-end="url(#mapArrowEnd)"
+                />
+                <rect
+                  x="414"
+                  y="86"
+                  width="218"
+                  height="28"
+                  rx="6"
+                  stroke="#b45309"
+                  stroke-width="1.25"
+                  fill="rgba(180,83,9,0.08)"
+                />
+                <text
+                  x="426"
+                  y="104"
+                  fill="#0f172a"
+                  font-size="9"
+                  font-family="JetBrains Mono,monospace"
+                >
+                  organization_positions.name
+                </text>
+              </svg>
+              <figcaption class="viz-caption">
+                Same sync row: name and email stay on
+                <code>organization_members</code>; title maps to
+                <code>organization_positions</code> (lookup or upsert by name,
+                then link).
+              </figcaption>
+            </figure>
           </div>
         </section>
 
